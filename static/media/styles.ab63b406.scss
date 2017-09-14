@@ -1,0 +1,11 @@
+.app {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header {
+  text-align: center;
+  font-size: 3rem;
+  flex-basis: 100%;
+  margin: 2rem 0;
+}
