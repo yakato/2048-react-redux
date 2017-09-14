@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
-import styles from './styles.scss';
+import React, { Component } from 'react'
+
+import styles from './styles.scss'
 
 class App extends Component {
   render() {
     return (
-      <div className={styles.App}>
-      </div>
-    );
+      <article className={styles.app}>
+        <header className={styles.header}>2048 in React</header>
+      </article>
+    )
   }
 }
 
-export default App;
+export default App
