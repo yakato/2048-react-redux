@@ -6,6 +6,22 @@
   margin: 5px;
   display: inline-block;
   color: #766;
-  font-size: 55px;
+  font-size: 2.5rem;
   vertical-align: middle;
+  line-height: 6rem;
+  text-align: center;
+}
+
+$numbers: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048;
+$colors: #EEE4DA, #EDE0C8, #F2B179, #F59563, #F67C5F, #F65E3B, #ECCE76, #ECCC6A, #EAC85A, #edc53f, #edc22e;
+
+@for $i from 1 through length($numbers) {
+  $number: nth($numbers, $i);
+  .tile#{$number} {
+    background-color: nth($colors, $i);
+  }
+}
+
+.tile1024, .tile2048 {
+  font-size: 2rem;
 }
