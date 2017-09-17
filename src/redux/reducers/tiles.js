@@ -23,8 +23,3 @@ export default (state = initialState, action) => {
       return state
   }
 }
-
-export const getValueById = ({ state, tileId }) => {
-  console.log(state)
-  state.tiles.filter(tile => { return tile.id === tileId })
-}

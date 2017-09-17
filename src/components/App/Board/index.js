@@ -17,7 +17,7 @@ class Board extends Component {
       <div className={styles.boardWrapper}>
         <div className={styles.board}>
         {[...Array(16)].map((x, i) =>
-          <Tile id={i + 1} key={i} />
+          <Tile id={i} key={i} />
         )}
         </div>
       </div>

@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import { tiles } from '../../../redux/actions'
-import { getValueById } from '../../../redux/reducers/tiles'
 import styles from './styles.scss'
 
 class Tile extends Component {
@@ -26,7 +25,7 @@ class Tile extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    value: getValueById(ownProps.id)
+    value: state.tiles[ownProps.id] ? state.tiles[ownProps.id].value : ''
   }
 }
 
