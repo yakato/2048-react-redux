@@ -1,23 +1,16 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
-import Tile from '../Tile'
-import { tiles } from '../../../redux/actions'
-
+import Cell from '../Cell'
 import styles from './styles.scss'
 
 class Board extends Component {
-
-  componentDidMount() {
-    this.props.addNewTile()
-  }
 
   render() {
     return (
       <div className={styles.boardWrapper}>
         <div className={styles.board}>
         {[...Array(16)].map((x, i) =>
-          <Tile id={i} key={i} />
+          <Cell key={i} />
         )}
         </div>
       </div>
@@ -25,4 +18,4 @@ class Board extends Component {
   }
 }
 
-export default connect(null, tiles)(Board)
+export default Board
