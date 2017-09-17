@@ -15,7 +15,7 @@ class Board extends Component {
   renderTiles() {
     const tiles = this.props.tiles
     for (const key of Object.keys(this.props.tiles)) {
-      return <Tile value={tiles[key].value} />
+      return <Tile value={tiles[key].value} x={tiles[key].x} y={tiles[key].y}/>
     }
 
   }
