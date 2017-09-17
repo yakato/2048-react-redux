@@ -1,17 +1,10 @@
-export const ADD_NEW_TILE = 'ADD_NEW_TILE'
 export const CREATE_TILE = 'CREATE_TILE'
+export const INITIALIZE_BOARD = 'INITIALIZE_BOARD'
 
-export function createTile(tileId) {
-  return (dispatch) => {
-    dispatch({
-      type: CREATE_TILE,
-      payload: { tileId }
-    })
-  }
+export function initializeBoard(tileId) {
+  return (dispatch) => { dispatch({ type: INITIALIZE_BOARD }) }
 }
 
-export function addNewTile() {
-  return (dispatch) => {
-    dispatch({ type: ADD_NEW_TILE })
-  }
+export function createTile(tileId) {
+  return (dispatch) => { dispatch({ type: CREATE_TILE }) }
 }
