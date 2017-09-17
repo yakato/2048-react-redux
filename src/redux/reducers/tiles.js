@@ -1,6 +1,7 @@
 import {
   CREATE_TILE,
-  INITIALIZE_BOARD
+  INITIALIZE_BOARD,
+  MOVE_TILE
 } from '../actions/tiles'
 
 const initialState = {
@@ -24,8 +25,7 @@ export default (state = initialState, action) => {
       const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
       const newEmptyCellsArray = state.emptyCells
       newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
-
-      const id = 1
+      const id = state.tilesById.length ? state.tilesById.length + 1 : 1
       const newTile = {
         x: randomEmptyCell.x,
         y: randomEmptyCell.y,
@@ -34,9 +34,12 @@ export default (state = initialState, action) => {
       return {
         ...state,
         emptyCells: newEmptyCellsArray,
-        tilesById: { ...state.tilesById, [id]: newTile }
+        tilesById : { ...state.tilesById, [id]: newTile }
       }
 
+    case MOVE_TILE:
+      console.log(Object.keys(state.tilesById))
+      return state
     default:
       return state
   }
