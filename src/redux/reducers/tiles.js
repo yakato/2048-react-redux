@@ -25,7 +25,8 @@ export default (state = initialState, action) => {
       const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
       const newEmptyCellsArray = state.emptyCells
       newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
-      const id = state.tilesById.length ? state.tilesById.length + 1 : 1
+      const size = Object.keys(state.tilesById).length
+      const id = size ? size + 1 : 1
       const newTile = {
         x: randomEmptyCell.x,
         y: randomEmptyCell.y,
@@ -38,7 +39,6 @@ export default (state = initialState, action) => {
       }
 
     case MOVE_TILE:
-      console.log(Object.keys(state.tilesById))
       return state
     default:
       return state

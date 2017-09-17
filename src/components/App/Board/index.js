@@ -14,9 +14,9 @@ class Board extends Component {
 
   renderTiles() {
     const { tiles } = this.props
-    for (const key of Object.keys(tiles)) {
-      return <Tile value={tiles[key].value} x={tiles[key].x} y={tiles[key].y}/>
-    }
+    return Object.keys(tiles).map((key, index) =>  {
+      return <Tile key={index} value={tiles[key].value} x={tiles[key].x} y={tiles[key].y} />
+    })
   }
 
   render() {
