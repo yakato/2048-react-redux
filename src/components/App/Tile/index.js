@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import { tiles } from '../../../redux/actions'
 import styles from './styles.scss'
 
 class Tile extends Component {
@@ -9,9 +8,8 @@ class Tile extends Component {
   }
 
   calculatePosition(x, y) {
-    console.log(x, y)
-    const top = (x - 1) * 100 + (x + y) * 5
-    const left = (y - 1) * 100 + (x + y) * 5
+    const top = (x - 1) * 100 + 10 * x
+    const left = (y - 1) * 100 + 10 * y
     return { top, left }
   }
 
