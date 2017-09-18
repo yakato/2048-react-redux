@@ -1,38 +1,26 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { createTile, moveTile } from '../../redux/actions/tiles'
+import { moveTiles } from '../../redux/actions/tiles'
 import Board from './Board'
 import styles from './styles.scss'
 
 class App extends Component {
 
+  handleTest(e, direction) {
+    this.props.moveTiles(direction)
+  }
+
   render() {
+    const direction = 'right'
     return (
       <article className={styles.app}>
         <header className={styles.header}>2048 in React</header>
-        <button onClick={this.props.move}>Test</button>
-        <button onClick={this.props.createTile}>Add</button>
+        <button onClick={(e) => this.handleTest(e, direction)}>Test</button>
         <Board />
       </article>
     )
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    createTile: () => {
-      dispatch(createTile())
-    },
-
-    move: () => {
-      dispatch(moveTile())
-    }
-  }
-}
-
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(App)
+export default connect(null, { moveTiles })(App)

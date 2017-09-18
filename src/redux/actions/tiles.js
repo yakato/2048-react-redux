@@ -1,15 +1,22 @@
 export const CREATE_TILE = 'CREATE_TILE'
 export const INITIALIZE_BOARD = 'INITIALIZE_BOARD'
-export const MOVE_TILE = 'MOVE_TILE'
+export const MOVE_TILES = 'MOVE_TILES'
 
-export function initializeBoard(tileId) {
-  return ({ type: INITIALIZE_BOARD })
+export function initializeBoard() {
+  return (dispatch) => {
+    dispatch({ type: INITIALIZE_BOARD })
+  }
 }
 
-export function createTile(tileId) {
-  return ({ type: CREATE_TILE })
+export function createTile() {
+  return (dispatch) => {
+    dispatch({ type: CREATE_TILE })
+  }
 }
 
-export function moveTile(tileId) {
-  return ({ type: MOVE_TILE })
+export function moveTiles(direction) {
+  return (dispatch) => {
+    dispatch({ type: MOVE_TILES, payload: { direction } })
+    dispatch({ type: CREATE_TILE })
+  }
 }

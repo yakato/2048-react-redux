@@ -8,6 +8,7 @@ import styles from './styles.scss'
 
 class Board extends Component {
   componentWillMount() {
+    console.log(this)
     this.props.initializeBoard()
     this.props.createTile()
   }
@@ -37,19 +38,6 @@ Board.defaultProps = {
   tiles: {}
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    initializeBoard: () => {
-      dispatch(initializeBoard())
-    },
-
-    createTile: () => {
-      dispatch(createTile())
-    }
-  }
-}
-
-
 const mapStateToProps = (state) => {
   return {
     tiles: state.tiles.tilesById
@@ -58,5 +46,8 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  {
+    initializeBoard,
+    createTile
+  }
 )(Board)

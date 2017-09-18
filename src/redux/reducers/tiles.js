@@ -1,7 +1,7 @@
 import {
   CREATE_TILE,
   INITIALIZE_BOARD,
-  MOVE_TILE
+  MOVE_TILES
 } from '../actions/tiles'
 
 const initialState = {
@@ -38,8 +38,7 @@ export default (state = initialState, action) => {
         tilesById : { ...state.tilesById, [id]: newTile }
       }
 
-    case MOVE_TILE:
-
+    case MOVE_TILES:
       return state
     default:
       return state
