@@ -37,6 +37,19 @@ Board.defaultProps = {
   tiles: {}
 }
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    initializeBoard: () => {
+      dispatch(initializeBoard())
+    },
+
+    createTile: () => {
+      dispatch(createTile())
+    }
+  }
+}
+
+
 const mapStateToProps = (state) => {
   return {
     tiles: state.tiles.tilesById
@@ -45,8 +58,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {
-    initializeBoard,
-    createTile
-  }
+  mapDispatchToProps,
 )(Board)

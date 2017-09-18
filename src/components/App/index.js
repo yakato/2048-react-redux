@@ -7,33 +7,32 @@ import styles from './styles.scss'
 
 class App extends Component {
 
-  testMoveRight(e) {
-    e.preventDefault()
-    this.props.moveTile()
-  }
-
-  addTile(e) {
-    e.preventDefault()
-    this.props.createTile()
-  }
-
   render() {
     return (
       <article className={styles.app}>
         <header className={styles.header}>2048 in React</header>
-        <button onClick={(e) => this.testMoveRight(e)}>Test</button>
-        <button onClick={(e) => this.addTile(e)}>Add</button>
+        <button onClick={this.props.move}>Test</button>
+        <button onClick={this.props.createTile}>Add</button>
         <Board />
       </article>
     )
   }
 }
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    createTile: () => {
+      dispatch(createTile())
+    },
+
+    move: () => {
+      dispatch(moveTile())
+    }
+  }
+}
+
 
 export default connect(
   null,
-  {
-    createTile,
-    moveTile
-  }
+  mapDispatchToProps
 )(App)
