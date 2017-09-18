@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { tiles } from '../../../redux/actions'
+import { initializeBoard, createTile } from '../../../redux/actions/tiles'
 import Cell from '../Cell'
 import Tile from '../Tile'
 import styles from './styles.scss'
@@ -43,4 +43,10 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, tiles)(Board)
+export default connect(
+  mapStateToProps,
+  {
+    initializeBoard,
+    createTile
+  }
+)(Board)

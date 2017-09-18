@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { tiles } from '../../redux/actions'
+import { createTile, moveTile } from '../../redux/actions/tiles'
 import Board from './Board'
 import styles from './styles.scss'
 
@@ -30,4 +30,10 @@ class App extends Component {
 }
 
 
-export default connect(null, tiles)(App)
+export default connect(
+  null,
+  {
+    createTile,
+    moveTile
+  }
+)(App)

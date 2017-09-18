@@ -39,6 +39,7 @@ export default (state = initialState, action) => {
       }
 
     case MOVE_TILE:
+
       return state
     default:
       return state
