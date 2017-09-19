@@ -17,6 +17,5 @@ export function createTile() {
 export function moveTiles(direction) {
   return (dispatch) => {
     dispatch({ type: MOVE_TILES, payload: { direction } })
-    dispatch({ type: CREATE_TILE })
   }
 }

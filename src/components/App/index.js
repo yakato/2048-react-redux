@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { moveTiles } from '../../redux/actions/tiles'
+import { moveTiles, createTile } from '../../redux/actions/tiles'
 import Board from './Board'
 import styles from './styles.scss'
 
@@ -9,6 +9,7 @@ class App extends Component {
 
   handleTest(e, direction) {
     this.props.moveTiles(direction)
+    this.props.createTile()
   }
 
   render() {
@@ -23,4 +24,4 @@ class App extends Component {
   }
 }
 
-export default connect(null, { moveTiles })(App)
+export default connect(null, { moveTiles, createTile })(App)

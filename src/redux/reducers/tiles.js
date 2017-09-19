@@ -84,26 +84,19 @@ export default (state = initialState, action) => {
               while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]) {
                 const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
                 newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                console.log(currentTile.y)
-                currentTile.y = currentTile.y + 1
-                console.log(currentTile.y)
 
-                newState.emptyCells = newState.emptyCells.filter(
-                  (obj) => {
-                    const a = { x: currentTile.x, y: currentTile.y }
-                    console.log(obj, a)
-                    return obj !== { x: currentTile.x, y: currentTile.y }})
+                currentTile.y = currentTile.y + 1
+
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
                 const newPosition = generatePositionKey(currentTile.x, currentTile.y)
                 //remove unused positions
-
                 newState.tilesByPosition[oldPosition] = undefined
                 //remove currentTile from previous position
                 newState.tilesByColumn[y] = newState.tilesByColumn[y].filter((id) => id !== currentTile.id)
                 //add to current columns
-                newState.tilesByColumn[currentTile.y] = [...newState.tilesByColumn[currentTile.y], currentTile.id]
+                newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
                 //update positions
                 newState.tilesByPosition[newPosition] = currentTile.id
-
               }
             }
           })
