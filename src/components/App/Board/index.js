@@ -8,7 +8,6 @@ import styles from './styles.scss'
 
 class Board extends Component {
   componentWillMount() {
-    console.log(this)
     this.props.initializeBoard()
     this.props.createTile()
   }

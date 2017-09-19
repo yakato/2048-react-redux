@@ -6,7 +6,8 @@ import {
 
 const initialState = {
   tilesById: {},
-  emptyCells: []
+  emptyCells: [],
+  numberOfTiles: 0,
 }
 
 export default (state = initialState, action) => {
@@ -25,8 +26,7 @@ export default (state = initialState, action) => {
       const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
       const newEmptyCellsArray = state.emptyCells
       newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
-      const size = Object.keys(state.tilesById).length
-      const id = size ? size + 1 : 1
+      const id = state.numberOfTiles + 1
       const newTile = {
         x: randomEmptyCell.x,
         y: randomEmptyCell.y,
@@ -35,10 +35,15 @@ export default (state = initialState, action) => {
       return {
         ...state,
         emptyCells: newEmptyCellsArray,
-        tilesById : { ...state.tilesById, [id]: newTile }
+        tilesById : { ...state.tilesById, [id]: newTile },
+        numberOfTiles: id
       }
 
     case MOVE_TILES:
+      const updatedTiles = state.tilesById
+      Object.keys(updatedTiles).map((key, index) =>  {
+        return console.log(updatedTiles[key].x, updatedTiles[key].y)
+      })
       return state
     default:
       return state
