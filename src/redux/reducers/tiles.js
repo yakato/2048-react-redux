@@ -28,6 +28,28 @@ const initialState = {
 const getTileById = (state, tileId) => (state.tilesById[tileId])
 const generatePositionKey = (x,y) => (`${x}::${y}`)
 
+const calculatePosition = (state, currentTile, vector, axis) => {
+  const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
+  const oldVar = currentTile[axis]
+  state.emptyCells = [ ...state.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+
+  vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
+
+  state.emptyCells = state.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
+  const newPosition = generatePositionKey(currentTile.x, currentTile.y)
+  state.tilesByPosition[oldPosition] = undefined
+  state.tilesByPosition[newPosition] = currentTile.id
+
+  if(axis === 'y') {
+    state.tilesByColumn[oldVar] = state.tilesByColumn[oldVar].filter((id) => id !== currentTile.id)
+    state.tilesByColumn[currentTile.y] = [ ...state.tilesByColumn[currentTile.y], currentTile.id ]
+  } else if (axis === 'x') {
+    state.tilesByRow[oldVar] = state.tilesByRow[oldVar].filter((id) => id !== currentTile.id)
+    state.tilesByRow[currentTile.y] = [ ...state.tilesByRow[currentTile.y], currentTile.id ]
+  }
+  return state
+}
+
 export default (state = initialState, action) => {
   switch (action.type) {
 
@@ -89,16 +111,7 @@ export default (state = initialState, action) => {
             let currentTile = getTileById(newState, tileId)
             if(currentTile) {
               while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]) {
-                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
-                const oldY = currentTile.y
-                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                currentTile.y = currentTile.y + 1
-                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
-                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-                newState.tilesByPosition[oldPosition] = undefined
-                newState.tilesByPosition[newPosition] = currentTile.id
-                newState.tilesByColumn[oldY] = newState.tilesByColumn[oldY].filter((id) => id !== currentTile.id)
-                newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
+                calculatePosition(newState, currentTile, 'plus', 'y')
               }
               const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y + 1)])
               if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
@@ -125,16 +138,7 @@ export default (state = initialState, action) => {
             let currentTile = getTileById(newState, tileId)
             if(currentTile) {
               while(currentTile.y - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)]) {
-                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
-                const oldY = currentTile.y
-                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                currentTile.y = currentTile.y - 1
-                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
-                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-                newState.tilesByPosition[oldPosition] = undefined
-                newState.tilesByPosition[newPosition] = currentTile.id
-                newState.tilesByColumn[oldY] = newState.tilesByColumn[oldY].filter((id) => id !== currentTile.id)
-                newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
+                calculatePosition(newState, currentTile, 'minus', 'y')
               }
               const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)])
               if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
@@ -161,16 +165,7 @@ export default (state = initialState, action) => {
             let currentTile = getTileById(newState, tileId)
             if(currentTile) {
               while(currentTile.x - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)]) {
-                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
-                const oldX = currentTile.x
-                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                currentTile.x = currentTile.x - 1
-                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
-                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-                newState.tilesByPosition[oldPosition] = undefined
-                newState.tilesByPosition[newPosition] = currentTile.id
-                newState.tilesByRow[oldX] = newState.tilesByRow[oldX].filter((id) => id !== currentTile.id)
-                newState.tilesByRow[currentTile.x] = [ ...newState.tilesByRow[currentTile.x], currentTile.id ]
+                calculatePosition(newState, currentTile, 'minus', 'x')
               }
               const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)])
               if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
@@ -197,16 +192,7 @@ export default (state = initialState, action) => {
             let currentTile = getTileById(newState, tileId)
             if(currentTile) {
               while(currentTile.x + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)]) {
-                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
-                const oldX = currentTile.x
-                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                currentTile.x = currentTile.x + 1
-                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
-                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-                newState.tilesByPosition[oldPosition] = undefined
-                newState.tilesByPosition[newPosition] = currentTile.id
-                newState.tilesByRow[oldX] = newState.tilesByRow[oldX].filter((id) => id !== currentTile.id)
-                newState.tilesByRow[currentTile.x] = [ ...newState.tilesByRow[currentTile.x], currentTile.id ]
+                calculatePosition(newState, currentTile, 'plus', 'x')
               }
               const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)])
               if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
