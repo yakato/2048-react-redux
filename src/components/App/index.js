@@ -27,14 +27,20 @@ class App extends Component {
   }
 
   render() {
-    const direction = 'right'
     return (
       <article className={styles.app}>
         <header className={styles.header}>2048 in React</header>
+        {this.props.gameOver ? <div>GameOver</div> : null}
         <Board />
       </article>
     )
   }
 }
 
-export default connect(null, { moveTiles, createTile })(App)
+const mapsStateToProps = (state) => {
+  return {
+    gameOver: !state.tiles.emptyCells.length
+  }
+}
+
+export default connect(mapsStateToProps, { moveTiles, createTile })(App)

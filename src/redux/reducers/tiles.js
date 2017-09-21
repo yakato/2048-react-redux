@@ -22,6 +22,7 @@ const initialState = {
   emptyCells: [],
   numberOfTiles: 0,
   tilesHasBeenMoved: false,
+  currentTurn: 0,
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -40,77 +41,150 @@ export default (state = initialState, action) => {
       return { ...state, emptyCells: emptyPositions }
 
     case CREATE_TILE:
-      const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
-      const newEmptyCellsArray = [ ...state.emptyCells ]
-      newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
-      const id = state.numberOfTiles + 1
-      const newTile = {
-        x: randomEmptyCell.x,
-        y: randomEmptyCell.y,
-        value: 2,
-        id: id,
-      }
-      const position = generatePositionKey(newTile.x, newTile.y)
-      return {
-        ...state,
-        emptyCells: newEmptyCellsArray,
-        tilesById : {
-          ...state.tilesById,
-          [id]: newTile
-        },
-        numberOfTiles: id,
-        tilesByRow: {
-          ...state.tilesByRow,
-          [newTile.x]: [...state.tilesByRow[newTile.x], id]
-        },
-        tilesByColumn: {
-          ...state.tilesByColumn,
-          [newTile.y]: [...state.tilesByColumn[newTile.y], id]
-        },
-        tilesByPosition: {
-          ...state.tilesByPosition,
-          [position]: id
-        },
-        tilesHasBeenMoved: false
-      }
+      if(state.emptyCells.length) {
+        const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
+        const newEmptyCellsArray = [ ...state.emptyCells ]
+        newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
+        const id = state.numberOfTiles + 1
+        // const newValue = [2, 4][Math.floor(Math.random()*2)] //todo
+        const newTile = {
+          x: randomEmptyCell.x,
+          y: randomEmptyCell.y,
+          value: 2,
+          id: id,
+        }
+        const position = generatePositionKey(newTile.x, newTile.y)
+        return {
+          ...state,
+          emptyCells: newEmptyCellsArray,
+          tilesById : {
+            ...state.tilesById,
+            [id]: newTile
+          },
+          numberOfTiles: id,
+          tilesByRow: {
+            ...state.tilesByRow,
+            [newTile.x]: [...state.tilesByRow[newTile.x], id]
+          },
+          tilesByColumn: {
+            ...state.tilesByColumn,
+            [newTile.y]: [...state.tilesByColumn[newTile.y], id]
+          },
+          tilesByPosition: {
+            ...state.tilesByPosition,
+            [position]: id
+          },
+          tilesHasBeenMoved: false
+        }
+      } else return state
 
     case MOVE_TILES:
       const direction = action.payload.direction
       const newState = { ...state }
+      newState.currentTurn++
+      const currentTurn = newState.currentTurn
       if(direction === 'right') {
-        //y 321
-        for (let y = 3; y > 0; y--) {
+        for (let y = 4; y > 0; y--) {
           newState.tilesByColumn[y].forEach((tileId) => {
             let currentTile = getTileById(newState, tileId)
             if(currentTile) {
               while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]) {
                 const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
+                const oldY = currentTile.y
                 newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
                 currentTile.y = currentTile.y + 1
                 newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
                 const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-                //remove unused positions
                 newState.tilesByPosition[oldPosition] = undefined
-                //update positions
                 newState.tilesByPosition[newPosition] = currentTile.id
-                //remove currentTile from previous position
-                newState.tilesByColumn[y] = newState.tilesByColumn[y].filter((id) => id !== currentTile.id)
-                //add to current columns
+                newState.tilesByColumn[oldY] = newState.tilesByColumn[oldY].filter((id) => id !== currentTile.id)
                 newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
               }
-              const nextTile = newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]
-              if (nextTile && getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value === currentTile.value ) {
-                const nextTileById = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)])
+              const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)])
+              if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
                 newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTileById.x, y: nextTileById.y }))
-                newState.tilesByPosition[generatePositionKey(nextTileById.x, nextTileById.y)] = currentTile.id
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTile.x, y: nextTile.y }))
+                newState.tilesByPosition[generatePositionKey(nextTile.x, nextTile.y)] = currentTile.id
                 newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
-                newState.tilesByColumn[nextTileById.y] = newState.tilesByColumn[nextTileById.y].filter((id) => id !== nextTileById.id)
-                newState.tilesByColumn[nextTileById.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
-                newState.tilesByRow[nextTileById.x] = newState.tilesByRow[nextTileById.x].filter((id) => id !== nextTileById.id)
+
+                newState.tilesByColumn[nextTile.y] = newState.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
+                newState.tilesByColumn[nextTile.y] = [ ...newState.tilesByColumn[nextTile.y], currentTile.id ]
+
+                newState.tilesByRow[nextTile.x] = newState.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
                 newState.tilesById[currentTile.id].value = 2 * currentTile.value
                 currentTile.y = currentTile.y + 1
-                delete newState.tilesById[nextTileById.id]
+                delete newState.tilesById[nextTile.id]
+                newState.tilesById[currentTile.id].mergedTurn = currentTurn
+              }
+            }
+          })
+        }
+      } else if(direction === 'left') {
+        for (let y = 1; y < 5; y++) {
+          newState.tilesByColumn[y].forEach((tileId) => {
+            let currentTile = getTileById(newState, tileId)
+            if(currentTile) {
+              while(currentTile.y - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)]) {
+                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
+                const oldY = currentTile.y
+                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+                currentTile.y = currentTile.y - 1
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
+                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
+                newState.tilesByPosition[oldPosition] = undefined
+                newState.tilesByPosition[newPosition] = currentTile.id
+                newState.tilesByColumn[oldY] = newState.tilesByColumn[oldY].filter((id) => id !== currentTile.id)
+                newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
+              }
+              const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)])
+              if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
+                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTile.x, y: nextTile.y }))
+                newState.tilesByPosition[generatePositionKey(nextTile.x, nextTile.y)] = currentTile.id
+                newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
+                newState.tilesByColumn[nextTile.y] = newState.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
+                newState.tilesByColumn[nextTile.y] = [ ...newState.tilesByColumn[nextTile.y], currentTile.id ]
+
+                newState.tilesByRow[nextTile.x] = newState.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
+
+                newState.tilesById[currentTile.id].value = 2 * currentTile.value
+                currentTile.y = currentTile.y - 1
+                delete newState.tilesById[nextTile.id]
+              }
+            }
+          })
+        }
+      } else if(direction === 'up') {
+        for (let x = 1; x < 5; x++) {
+          newState.tilesByRow[x].forEach((tileId) => {
+            let currentTile = getTileById(newState, tileId)
+            if(currentTile) {
+              while(currentTile.x - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)]) {
+                const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
+                const oldX = currentTile.x
+                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+                currentTile.x = currentTile.x - 1
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
+                const newPosition = generatePositionKey(currentTile.x, currentTile.y)
+                newState.tilesByPosition[oldPosition] = undefined
+                newState.tilesByPosition[newPosition] = currentTile.id
+                newState.tilesByRow[oldX] = newState.tilesByRow[oldX].filter((id) => id !== currentTile.id)
+                newState.tilesByRow[currentTile.x] = [ ...newState.tilesByRow[currentTile.x], currentTile.id ]
+              }
+              const nextTile = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)])
+              if (nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
+                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTile.x, y: nextTile.y }))
+                newState.tilesByPosition[generatePositionKey(nextTile.x, nextTile.y)] = currentTile.id
+                newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
+                newState.tilesByRow[nextTile.x] = newState.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
+                newState.tilesByRow[nextTile.x] = [ ...newState.tilesByRow[nextTile.x], currentTile.id ]
+
+                newState.tilesByColumn[nextTile.y] = newState.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
+
+                newState.tilesById[currentTile.id].value = 2 * currentTile.value
+                currentTile.x = currentTile.x - 1
+                delete newState.tilesById[nextTile.id]
               }
             }
           })
