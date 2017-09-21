@@ -21,6 +21,7 @@ const initialState = {
   tilesByPosition: {},
   emptyCells: [],
   numberOfTiles: 0,
+  tilesHasBeenMoved: false,
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -69,7 +70,8 @@ export default (state = initialState, action) => {
         tilesByPosition: {
           ...state.tilesByPosition,
           [position]: id
-        }
+        },
+        tilesHasBeenMoved: false
       }
 
     case MOVE_TILES:
@@ -84,24 +86,32 @@ export default (state = initialState, action) => {
               while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]) {
                 const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
                 newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-
                 currentTile.y = currentTile.y + 1
-
                 newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
                 const newPosition = generatePositionKey(currentTile.x, currentTile.y)
                 //remove unused positions
                 newState.tilesByPosition[oldPosition] = undefined
+                //update positions
+                newState.tilesByPosition[newPosition] = currentTile.id
                 //remove currentTile from previous position
                 newState.tilesByColumn[y] = newState.tilesByColumn[y].filter((id) => id !== currentTile.id)
                 //add to current columns
                 newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
-                //update positions
-                newState.tilesByPosition[newPosition] = currentTile.id
               }
+              const nextTile = newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]
+              if (nextTile) {
+                console.log(getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value)
+              }
+              // console.log(getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value)
+              // if(currentTile.y + 1 <= 4 && getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value === currentTile.value) {
+              //   console.log('takie same')
+              // }
+
             }
           })
         }
       }
+      newState.tilesHasBeenMoved = true
       return newState
     default:
       return state

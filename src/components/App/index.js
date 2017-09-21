@@ -9,7 +9,6 @@ class App extends Component {
 
   handleTest(e, direction) {
     this.props.moveTiles(direction)
-    this.props.createTile()
   }
 
   render() {

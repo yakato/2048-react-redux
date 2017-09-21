@@ -12,6 +12,10 @@ class Board extends Component {
     this.props.createTile()
   }
 
+  componentWillReceiveProps(nextProps) {
+    return nextProps.tilesHasBeenMoved === true ? setTimeout(() => this.props.createTile(), 500) : null
+  }
+
   renderTiles() {
     const { tiles } = this.props
     return Object.keys(tiles).map((key, index) =>  {
@@ -39,7 +43,8 @@ Board.defaultProps = {
 
 const mapStateToProps = (state) => {
   return {
-    tiles: state.tiles.tilesById
+    tiles: state.tiles.tilesById,
+    tilesHasBeenMoved: state.tiles.tilesHasBeenMoved
   }
 }
 
