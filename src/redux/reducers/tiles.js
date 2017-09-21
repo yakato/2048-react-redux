@@ -47,7 +47,7 @@ export default (state = initialState, action) => {
       const newTile = {
         x: randomEmptyCell.x,
         y: randomEmptyCell.y,
-        value: '2',
+        value: 2,
         id: id,
       }
       const position = generatePositionKey(newTile.x, newTile.y)
@@ -99,14 +99,19 @@ export default (state = initialState, action) => {
                 newState.tilesByColumn[currentTile.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
               }
               const nextTile = newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]
-              if (nextTile) {
-                console.log(getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value)
+              if (nextTile && getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value === currentTile.value ) {
+                const nextTileById = getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)])
+                newState.emptyCells = [ ...newState.emptyCells, { x: currentTile.x, y: currentTile.y } ]
+                newState.emptyCells = newState.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTileById.x, y: nextTileById.y }))
+                newState.tilesByPosition[generatePositionKey(nextTileById.x, nextTileById.y)] = currentTile.id
+                newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
+                newState.tilesByColumn[nextTileById.y] = newState.tilesByColumn[nextTileById.y].filter((id) => id !== nextTileById.id)
+                newState.tilesByColumn[nextTileById.y] = [ ...newState.tilesByColumn[currentTile.y], currentTile.id ]
+                newState.tilesByRow[nextTileById.x] = newState.tilesByRow[nextTileById.x].filter((id) => id !== nextTileById.id)
+                newState.tilesById[currentTile.id].value = 2 * currentTile.value
+                currentTile.y = currentTile.y + 1
+                delete newState.tilesById[nextTileById.id]
               }
-              // console.log(getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value)
-              // if(currentTile.y + 1 <= 4 && getTileById(newState, newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y+1)]).value === currentTile.value) {
-              //   console.log('takie same')
-              // }
-
             }
           })
         }
