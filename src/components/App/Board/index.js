@@ -8,6 +8,11 @@ import styles from './styles.scss'
 
 class Board extends Component {
 
+  constructor(props) {
+    super(props)
+    this.keyPressed = false
+  }
+
   componentWillMount() {
     this.props.initializeBoard()
     this.props.createTile()
@@ -18,19 +23,32 @@ class Board extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    return nextProps.tilesHasBeenMoved === true ? setTimeout(() => this.props.createTile(), 500) : null
+    return nextProps.tilesHasBeenMoved === true ? setTimeout(this.props.createTile, 500) : null
   }
 
+  componentDidUpdate() {
+    this.keyPressed = false
+  }
 
   handleKeyDown(event) {
-    event.preventDefault()
-    switch(true) {
-      case event.keyCode === 37: return this.props.moveTiles('left')
-      case event.keyCode === 38: return this.props.moveTiles('up')
-      case event.keyCode === 39: return this.props.moveTiles('right')
-      case event.keyCode === 40: return this.props.moveTiles('down')
-      default: break
+    console.log(this.keyPressed)
+    if(this.keyPressed) {
+      return;
+    } else {
+      switch(event.keyCode) {
+        case 37: return this._moveTiles('left', event)
+        case 38: return this._moveTiles('up', event)
+        case 39: return this._moveTiles('right', event)
+        case 40: return this._moveTiles('down', event)
+        default: break
+      }
     }
+  }
+
+  _moveTiles(direction, event) {
+    event.preventDefault()
+    this.keyPressed = true
+    this.props.moveTiles(direction)
   }
 
   renderTiles() {
@@ -61,7 +79,8 @@ Board.defaultProps = {
 const mapStateToProps = (state) => {
   return {
     tiles: state.tiles.tilesById,
-    tilesHasBeenMoved: state.tiles.tilesHasBeenMoved
+    tilesHasBeenMoved: state.tiles.tilesHasBeenMoved,
+    currentTurn: state.tiles.currentTurn,
   }
 }
 

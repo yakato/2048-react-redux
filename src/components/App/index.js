@@ -10,6 +10,7 @@ class App extends Component {
     return (
       <article className={styles.app}>
         <header className={styles.header}>2048 in React</header>
+        <div className={styles.score}>Score: {this.props.score}</div>
         {this.props.gameOver ? <div>GameOver</div> : null}
         <Board />
       </article>
@@ -19,7 +20,8 @@ class App extends Component {
 
 const mapsStateToProps = (state) => {
   return {
-    gameOver: !state.tiles.emptyCells.length
+    gameOver: !state.tiles.emptyCells.length,
+    score: state.tiles.score
   }
 }
 

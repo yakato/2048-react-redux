@@ -1,6 +1,8 @@
-export const CREATE_TILE = 'CREATE_TILE'
-export const INITIALIZE_BOARD = 'INITIALIZE_BOARD'
-export const MOVE_TILES = 'MOVE_TILES'
+import {
+  CREATE_TILE,
+  INITIALIZE_BOARD,
+  MOVE_TILES,
+} from '../reducers/constants'
 
 export function initializeBoard() {
   return (dispatch) => {

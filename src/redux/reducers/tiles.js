@@ -1,8 +1,12 @@
 import {
   CREATE_TILE,
   INITIALIZE_BOARD,
-  MOVE_TILES
-} from '../actions/tiles'
+  MOVE_TILES,
+  RIGHT,
+  LEFT,
+  UP,
+  DOWN
+} from './constants'
 
 const initialState = {
   tilesById: {},
@@ -32,29 +36,26 @@ const calculatePosition = (state, currentTile, vector, axis) => {
   const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
   const oldVar = currentTile[axis]
   state.emptyCells = [ ...state.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-
   vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
-
-  state.emptyCells = state.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: currentTile.x, y: currentTile.y }))
+  state.emptyCells = state.emptyCells.filter((obj) => obj.x !== currentTile.x || obj.y !== currentTile.y)
   const newPosition = generatePositionKey(currentTile.x, currentTile.y)
   state.tilesByPosition[oldPosition] = undefined
   state.tilesByPosition[newPosition] = currentTile.id
-
   if(axis === 'y') {
     state.tilesByColumn[oldVar] = state.tilesByColumn[oldVar].filter((id) => id !== currentTile.id)
     state.tilesByColumn[currentTile.y] = [ ...state.tilesByColumn[currentTile.y], currentTile.id ]
   } else if (axis === 'x') {
     state.tilesByRow[oldVar] = state.tilesByRow[oldVar].filter((id) => id !== currentTile.id)
-    state.tilesByRow[currentTile.y] = [ ...state.tilesByRow[currentTile.y], currentTile.id ]
+    state.tilesByRow[currentTile.x] = [ ...state.tilesByRow[currentTile.x], currentTile.id ]
   }
+  state.tilesHasBeenMoved = true
   return state
 }
 
 const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => {
-
   if(nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
     state.emptyCells = [ ...state.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-    state.emptyCells = state.emptyCells.filter((obj) => JSON.stringify(obj) !== JSON.stringify({ x: nextTile.x, y: nextTile.y }))
+    state.emptyCells = state.emptyCells.filter((obj) => obj.x !== nextTile.x || obj.y !== nextTile.y)
     state.tilesByPosition[generatePositionKey(nextTile.x, nextTile.y)] = currentTile.id
     state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
     if(axis === 'y') {
@@ -128,8 +129,9 @@ export default (state = initialState, action) => {
       const direction = action.payload.direction
       const newState = { ...state }
       newState.currentTurn++
+      newState.tilesHasBeenMoved = false
       const currentTurn = newState.currentTurn
-      if(direction === 'right') {
+      if(direction === RIGHT) {
         for (let y = 4; y > 0; y--) {
           newState.tilesByColumn[y].forEach((tileId) => {
             let currentTile = getTileById(newState, tileId)
@@ -142,7 +144,7 @@ export default (state = initialState, action) => {
             }
           })
         }
-      } else if(direction === 'left') {
+      } else if(direction === LEFT) {
         for (let y = 1; y < 5; y++) {
           newState.tilesByColumn[y].forEach((tileId) => {
             let currentTile = getTileById(newState, tileId)
@@ -155,7 +157,7 @@ export default (state = initialState, action) => {
             }
           })
         }
-      } else if(direction === 'up') {
+      } else if(direction === UP) {
         for (let x = 1; x < 5; x++) {
           newState.tilesByRow[x].forEach((tileId) => {
             let currentTile = getTileById(newState, tileId)
@@ -168,7 +170,7 @@ export default (state = initialState, action) => {
             }
           })
         }
-      } else if(direction === 'down') {
+      } else if(direction === DOWN) {
         for (let x = 4; x > 0; x--) {
           newState.tilesByRow[x].forEach((tileId) => {
             let currentTile = getTileById(newState, tileId)
@@ -182,7 +184,6 @@ export default (state = initialState, action) => {
           })
         }
       }
-      newState.tilesHasBeenMoved = true
       return newState
     default:
       return state
