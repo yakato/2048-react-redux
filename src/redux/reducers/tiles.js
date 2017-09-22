@@ -25,8 +25,9 @@ const initialState = {
   tilesByPosition: {},
   emptyCells: [],
   numberOfTiles: 0,
-  tilesHasBeenMoved: false,
   currentTurn: 0,
+  score: 0,
+  tilesHasBeenMoved: false
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -68,6 +69,7 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
       state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
     }
     state.tilesById[currentTile.id].value = 2 * currentTile.value
+    state.score = state.score + state.tilesById[currentTile.id].value
     vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
     delete state.tilesById[nextTile.id]
     state.tilesById[currentTile.id].mergedTurn = currentTurn

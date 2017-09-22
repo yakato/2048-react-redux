@@ -2,16 +2,12 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import { initializeBoard, createTile, moveTiles } from '../../../redux/actions/tiles'
+import { RIGHT, LEFT, UP, DOWN } from '../../../redux/reducers/constants'
 import Cell from '../Cell'
 import Tile from '../Tile'
 import styles from './styles.scss'
 
 class Board extends Component {
-
-  constructor(props) {
-    super(props)
-    this.keyPressed = false
-  }
 
   componentWillMount() {
     this.props.initializeBoard()
@@ -26,29 +22,14 @@ class Board extends Component {
     return nextProps.tilesHasBeenMoved === true ? setTimeout(this.props.createTile, 500) : null
   }
 
-  componentDidUpdate() {
-    this.keyPressed = false
-  }
-
   handleKeyDown(event) {
-    console.log(this.keyPressed)
-    if(this.keyPressed) {
-      return;
-    } else {
-      switch(event.keyCode) {
-        case 37: return this._moveTiles('left', event)
-        case 38: return this._moveTiles('up', event)
-        case 39: return this._moveTiles('right', event)
-        case 40: return this._moveTiles('down', event)
-        default: break
-      }
+    switch(event.keyCode) {
+      case 37: return this.props.moveTiles(LEFT)
+      case 38: return this.props.moveTiles(UP)
+      case 39: return this.props.moveTiles(RIGHT)
+      case 40: return this.props.moveTiles(DOWN)
+      default: break
     }
-  }
-
-  _moveTiles(direction, event) {
-    event.preventDefault()
-    this.keyPressed = true
-    this.props.moveTiles(direction)
   }
 
   renderTiles() {
