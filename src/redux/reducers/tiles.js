@@ -27,7 +27,7 @@ const initialState = {
   numberOfTiles: 0,
   currentTurn: 0,
   score: 0,
-  tilesHasBeenMoved: false
+  tilesHasBeenMoved: false,
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -61,10 +61,12 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
     state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
     if(axis === 'y') {
       state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
+      state.tilesByColumn[currentTile.y] = state.tilesByColumn[currentTile.y].filter((id) => id !== currentTile.id)
       state.tilesByColumn[nextTile.y] = [ ...state.tilesByColumn[nextTile.y], currentTile.id ]
       state.tilesByRow[nextTile.x] = state.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
     } else if(axis === 'x') {
       state.tilesByRow[nextTile.x] = state.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
+      state.tilesByRow[currentTile.x] = state.tilesByRow[currentTile.x].filter((id) => id !== currentTile.id)
       state.tilesByRow[nextTile.x] = [ ...state.tilesByRow[nextTile.x], currentTile.id ]
       state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
     }
@@ -74,6 +76,7 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
     delete state.tilesById[nextTile.id]
     state.tilesById[currentTile.id].mergedTurn = currentTurn
   }
+  return state
 }
 
 export default (state = initialState, action) => {
@@ -127,7 +130,6 @@ export default (state = initialState, action) => {
       } else return state
 
     case MOVE_TILES:
-      // const merged = false
       const direction = action.payload.direction
       const newState = { ...state }
       newState.currentTurn++
