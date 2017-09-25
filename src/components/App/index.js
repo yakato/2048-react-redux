@@ -20,7 +20,7 @@ class App extends Component {
 
 const mapsStateToProps = (state) => {
   return {
-    gameOver: !state.tiles.emptyCells.length,
+    // gameOver: !state.tiles.emptyCells.length,
     score: state.tiles.score
   }
 }

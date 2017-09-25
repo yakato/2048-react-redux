@@ -74,7 +74,6 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
     delete state.tilesById[nextTile.id]
     state.tilesById[currentTile.id].mergedTurn = currentTurn
   }
-  return state
 }
 
 export default (state = initialState, action) => {
@@ -95,11 +94,11 @@ export default (state = initialState, action) => {
         const newEmptyCellsArray = [ ...state.emptyCells ]
         newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
         const id = state.numberOfTiles + 1
-        // const newValue = [2, 4][Math.floor(Math.random()*2)] //todo
+        const newValue =  Math.random() < 0.1 ? 4 : 2
         const newTile = {
           x: randomEmptyCell.x,
           y: randomEmptyCell.y,
-          value: 2,
+          value: newValue,
           id: id,
         }
         const position = generatePositionKey(newTile.x, newTile.y)
@@ -128,6 +127,7 @@ export default (state = initialState, action) => {
       } else return state
 
     case MOVE_TILES:
+      // const merged = false
       const direction = action.payload.direction
       const newState = { ...state }
       newState.currentTurn++
