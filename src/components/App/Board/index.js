@@ -9,6 +9,11 @@ import styles from './styles.scss'
 
 class Board extends Component {
 
+  constructor(props) {
+    super(props)
+    this.keyPressed = false
+  }
+
   componentWillMount() {
     this.props.initializeBoard()
     this.props.createTile()
@@ -19,16 +24,27 @@ class Board extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    this.keyPressed = false
+    window.addEventListener('keydown', this.handleKeyDown.bind(this))
     return nextProps.tilesHasBeenMoved === true ? setTimeout(this.props.createTile, 500) : null
   }
 
   handleKeyDown(event) {
     switch(event.keyCode) {
-      case 37: return this.props.moveTiles(LEFT)
-      case 38: return this.props.moveTiles(UP)
-      case 39: return this.props.moveTiles(RIGHT)
-      case 40: return this.props.moveTiles(DOWN)
+      case 37: return this._moveTiles(LEFT)
+      case 38: return this._moveTiles(UP)
+      case 39: return this._moveTiles(RIGHT)
+      case 40: return this._moveTiles(DOWN)
       default: break
+    }
+  }
+
+  _moveTiles(direction) {
+    if (this.keyPressed) {
+      window.removeEventListener('keydown', this.handleKeyDown.bind(this))
+    } else {
+      this.keyPressed = true
+      this.props.moveTiles(direction)
     }
   }
 
