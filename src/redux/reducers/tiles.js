@@ -29,7 +29,8 @@ const initialState = {
   score: 0,
   tilesHasBeenMoved: false,
   gameOver: false,
-  mergeImpossible: {}
+  mergeImpossible: {},
+  maxValue: 0
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -73,6 +74,9 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
       state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
     }
     state.tilesById[currentTile.id].value = 2 * currentTile.value
+    if(state.tilesById[currentTile.id].value > state.maxValue) {
+      state.maxValue = state.tilesById[currentTile.id].value
+    }
     state.score = state.score + state.tilesById[currentTile.id].value
     vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
     delete state.tilesById[nextTile.id]

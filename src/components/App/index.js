@@ -15,6 +15,10 @@ class App extends Component {
           <div className={styles.gameOverOverlay}>
             <div className={styles.gameOverTxt}>GameOver</div>
           </div> : null}
+        {this.props.maxValue === 2048 ?
+          <div className={styles.winOverlay}>
+            <div className={styles.winTxt}>Congrats!</div>
+          </div> : null}
         <Board />
       </article>
     )
@@ -24,7 +28,8 @@ class App extends Component {
 const mapsStateToProps = (state) => {
   return {
     gameOver: state.tiles.gameOver,
-    score: state.tiles.score
+    score: state.tiles.score,
+    maxValue: state.tiles.maxValue
   }
 }
 

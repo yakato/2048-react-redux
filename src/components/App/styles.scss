@@ -18,7 +18,7 @@
   display: block;
 }
 
-.gameOverOverlay {
+.gameOverOverlay, .winOverlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -30,13 +30,21 @@
   display: block;
   z-index: 10;
   display: flex;
-  // align-items: center;
 }
 
-.gameOverTxt {
+.gameOverTxt, .winTxt {
   text-align: center;
   color: pink;
   font-size: 5rem;
   flex-basis: 100%;
   padding-top: 20rem;
+}
+
+.winOverlay {
+  background-color: pink;
+}
+
+.winTxt {
+  color: green;
+  font-size: 7rem;
 }
