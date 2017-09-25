@@ -28,6 +28,8 @@ const initialState = {
   currentTurn: 0,
   score: 0,
   tilesHasBeenMoved: false,
+  gameOver: false,
+  mergeImpossible: {}
 }
 
 const getTileById = (state, tileId) => (state.tilesById[tileId])
@@ -76,7 +78,6 @@ const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => 
     delete state.tilesById[nextTile.id]
     state.tilesById[currentTile.id].mergedTurn = currentTurn
   }
-  return state
 }
 
 export default (state = initialState, action) => {
@@ -125,11 +126,17 @@ export default (state = initialState, action) => {
             ...state.tilesByPosition,
             [position]: id
           },
-          tilesHasBeenMoved: false
+          tilesHasBeenMoved: false,
+          mergeImpossible: {}
         }
       } else return state
 
     case MOVE_TILES:
+      if (!state.emptyCells.length
+        && Object.keys(state.mergeImpossible).length === 4
+        && Object.keys(state.mergeImpossible).every(key => state.mergeImpossible[key] === true)) {
+        state.gameOver = true
+      }
       const direction = action.payload.direction
       const newState = { ...state }
       newState.currentTurn++
@@ -143,6 +150,7 @@ export default (state = initialState, action) => {
               while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y + 1)]) {
                 calculatePosition(newState, currentTile, 'plus', 'y')
               }
+              newState.mergeImpossible = { ...newState.mergeImpossible, [RIGHT]: true }
               const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y + 1)])
               mergeTiles(newState, currentTile, nextTile, currentTurn, 'plus', 'y')
             }
@@ -156,6 +164,7 @@ export default (state = initialState, action) => {
               while(currentTile.y - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)]) {
                 calculatePosition(newState, currentTile, 'minus', 'y')
               }
+              newState.mergeImpossible = { ...newState.mergeImpossible, [LEFT]: true }
               const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)])
               mergeTiles(newState, currentTile, nextTile, currentTurn, 'minus', 'y')
             }
@@ -169,6 +178,7 @@ export default (state = initialState, action) => {
               while(currentTile.x - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)]) {
                 calculatePosition(newState, currentTile, 'minus', 'x')
               }
+              newState.mergeImpossible = { ...newState.mergeImpossible, [UP]: true }
               const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)])
               mergeTiles(newState, currentTile, nextTile, currentTurn, 'minus', 'x')
             }
@@ -182,6 +192,7 @@ export default (state = initialState, action) => {
               while(currentTile.x + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)]) {
                 calculatePosition(newState, currentTile, 'plus', 'x')
               }
+              newState.mergeImpossible = { ...newState.mergeImpossible, [DOWN]: true }
               const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)])
               mergeTiles(newState, currentTile, nextTile, currentTurn, 'plus', 'x')
             }
