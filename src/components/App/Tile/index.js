@@ -18,7 +18,8 @@ class Tile extends Component {
     const { top, left } = this.calculatePosition(x,y)
     const classForNumber = this.props.value ? styles[this.generateClass(this.props.value)] : ''
     return (
-      <div style={{top: top + 'px', left: left + 'px'}} className={styles.tile + ' ' + classForNumber}>
+      <div  style={{top: top + 'px', left: left + 'px'}}
+            className={styles.tile + ' ' + classForNumber}>
         {value}
       </div>
     )

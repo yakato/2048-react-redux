@@ -12,7 +12,8 @@
 }
 
 $numbers: 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048;
-$colors: #EEEEEE, #EDE0C8, #F2B179, #F59563, #F67C5F, #F65E3B, #ECCE76, #ECCC6A, #EAC85A, #edc53f, #edc22e;
+$colors:  #EEEEEE, #EDE0C8, #F2B179, #F59563, #F67C5F, #F65E3B,
+          #ECCE76, #ECCC6A, #EAC85A, #edc53f, #edc22e;
 
 @for $i from 1 through length($numbers) {
   $number: nth($numbers, $i);
