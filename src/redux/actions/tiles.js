@@ -1,14 +1,7 @@
 import {
   CREATE_TILE,
-  INITIALIZE_BOARD,
   MOVE_TILES,
 } from '../reducers/constants'
-
-export function initializeBoard() {
-  return (dispatch) => {
-    dispatch({ type: INITIALIZE_BOARD })
-  }
-}
 
 export function createTile() {
   return (dispatch) => {

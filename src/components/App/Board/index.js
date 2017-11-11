@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { initializeBoard, createTile, moveTiles } from '../../../redux/actions/tiles'
+import { createTile, moveTiles } from '../../../redux/actions/tiles'
 import { RIGHT, LEFT, UP, DOWN } from '../../../redux/reducers/constants'
 import Cell from '../Cell'
 import Tile from '../Tile'
@@ -10,7 +10,6 @@ import styles from './styles.scss'
 class Board extends Component {
 
   componentWillMount() {
-    this.props.initializeBoard()
     this.props.createTile()
   }
 
@@ -68,7 +67,6 @@ const mapStateToProps = (state) => {
 export default connect(
   mapStateToProps,
   {
-    initializeBoard,
     createTile,
     moveTiles,
   }

@@ -1,6 +1,5 @@
 import {
   CREATE_TILE,
-  INITIALIZE_BOARD,
   MOVE_TILES,
   RIGHT,
   LEFT,
@@ -9,201 +8,107 @@ import {
 } from './constants'
 
 const initialState = {
-  tilesById: {},
-  tilesByColumn: {
-    1: [],
-    2: [],
-    3: [],
-    4: [],
+  tilesById: {
   },
-  tilesByRow: {
-    1: [],
-    2: [],
-    3: [],
-    4: [],
-  },
-  tilesByPosition: {},
-  emptyCells: [],
-  numberOfTiles: 0,
-  currentTurn: 0,
   score: 0,
-  tilesHasBeenMoved: false,
   gameOver: false,
-  mergeImpossible: {},
-  maxValue: 0
+  maxValue: 0,
+  tilesHasBeenMoved: false,
 }
 
-const getTileById = (state, tileId) => (state.tilesById[tileId])
-const generatePositionKey = (x,y) => (`${x}::${y}`)
-
-const calculatePosition = (state, currentTile, vector, axis) => {
-  const oldPosition = generatePositionKey(currentTile.x, currentTile.y)
-  const oldVar = currentTile[axis]
-  state.emptyCells = [ ...state.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-  vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
-  state.emptyCells = state.emptyCells.filter((obj) => obj.x !== currentTile.x || obj.y !== currentTile.y)
-  const newPosition = generatePositionKey(currentTile.x, currentTile.y)
-  state.tilesByPosition[oldPosition] = undefined
-  state.tilesByPosition[newPosition] = currentTile.id
-  if(axis === 'y') {
-    state.tilesByColumn[oldVar] = state.tilesByColumn[oldVar].filter((id) => id !== currentTile.id)
-    state.tilesByColumn[currentTile.y] = [ ...state.tilesByColumn[currentTile.y], currentTile.id ]
-  } else if (axis === 'x') {
-    state.tilesByRow[oldVar] = state.tilesByRow[oldVar].filter((id) => id !== currentTile.id)
-    state.tilesByRow[currentTile.x] = [ ...state.tilesByRow[currentTile.x], currentTile.id ]
-  }
-  state.tilesHasBeenMoved = true
-  return state
-}
-
-const mergeTiles = (state, currentTile, nextTile, currentTurn, vector, axis) => {
-  if(nextTile && nextTile.value === currentTile.value && nextTile.mergedTurn !== currentTurn && currentTile.mergedTurn !== currentTurn) {
-    state.emptyCells = [ ...state.emptyCells, { x: currentTile.x, y: currentTile.y } ]
-    state.emptyCells = state.emptyCells.filter((obj) => obj.x !== nextTile.x || obj.y !== nextTile.y)
-    state.tilesByPosition[generatePositionKey(nextTile.x, nextTile.y)] = currentTile.id
-    state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y)] = undefined
-    if(axis === 'y') {
-      state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
-      state.tilesByColumn[currentTile.y] = state.tilesByColumn[currentTile.y].filter((id) => id !== currentTile.id)
-      state.tilesByColumn[nextTile.y] = [ ...state.tilesByColumn[nextTile.y], currentTile.id ]
-      state.tilesByRow[nextTile.x] = state.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
-    } else if(axis === 'x') {
-      state.tilesByRow[nextTile.x] = state.tilesByRow[nextTile.x].filter((id) => id !== nextTile.id)
-      state.tilesByRow[currentTile.x] = state.tilesByRow[currentTile.x].filter((id) => id !== currentTile.id)
-      state.tilesByRow[nextTile.x] = [ ...state.tilesByRow[nextTile.x], currentTile.id ]
-      state.tilesByColumn[nextTile.y] = state.tilesByColumn[nextTile.y].filter((id) => id !== nextTile.id)
+const buildEmptyPositions = (tiles) => {
+  const result = new Set()
+  for (let x = 0; x < 4; x++) {
+    for (let y = 0; y < 4; y++) {
+      result.add(""+x+y)
     }
-    state.tilesById[currentTile.id].value = 2 * currentTile.value
-    if(state.tilesById[currentTile.id].value > state.maxValue) {
-      state.maxValue = state.tilesById[currentTile.id].value
-    }
-    state.score = state.score + state.tilesById[currentTile.id].value
-    vector === 'plus' ? currentTile[axis] = currentTile[axis] + 1 : currentTile[axis] = currentTile[axis] - 1
-    delete state.tilesById[nextTile.id]
-    state.tilesById[currentTile.id].mergedTurn = currentTurn
   }
+  tiles.forEach(tile => {
+    result.delete(""+tile.x+tile.y)
+  })
+  return result
 }
+
+const mergeTiles = (array) => {
+  const filteredArray = array.filter(val => val !== undefined)
+  for(let i = 0; i < filteredArray.length - 1; i ++) {
+    if(filteredArray[i].value === filteredArray[i+1].value) {
+      const sumValue = filteredArray[i+1].value *= 2
+      score += sumValue
+      maxValue = Math.max(sumValue, maxValue)
+      filteredArray.splice(i, 1)
+    }
+  }
+  return filteredArray
+}
+
+const moveTiles = (array) => {
+  const emptyArray = Array(4 - array.length)
+  return emptyArray.concat(array)
+}
+
+const buildBoard = (tiles, direction) => {
+  let board = [Array(4), Array(4),Array(4),Array(4)]
+  tiles.forEach((tile) => {
+    if( direction === RIGHT || direction === LEFT) {
+      board[tile.y][tile.x] = tile
+    } else {
+      board[tile.x][tile.y] = tile
+    }
+  })
+  return board
+}
+
+const updateBoard = (board, direction) => {
+  let newBoard = board.map((row) => {
+    if(direction === UP || direction === LEFT) {
+      return moveTiles(mergeTiles(row.reverse())).reverse()
+    } else {
+      return moveTiles(mergeTiles(row))
+    }
+  })
+
+  return newBoard.map((row) => {
+    return row.map((tile, position) => {
+      if( direction === RIGHT || direction === LEFT) {
+        return { ...tile, x: position }
+      } else {
+        return { ...tile, y: position }
+      }
+    })
+  })
+}
+
+let emptyPositions = buildEmptyPositions([])
+let maxTileId = 0
+let score = 0
+let maxValue = 0
 
 export default (state = initialState, action) => {
   switch (action.type) {
 
-    case INITIALIZE_BOARD:
-      const emptyPositions = []
-      for (let i = 1; i < 5; i++) {
-        for (let j = 1; j < 5; j++) {
-          emptyPositions.push({ x: i, y: j })
-        }
-      }
-      return { ...state, emptyCells: emptyPositions }
-
     case CREATE_TILE:
-      if(state.emptyCells.length) {
-        const randomEmptyCell = state.emptyCells[Math.floor(Math.random()*state.emptyCells.length)]
-        const newEmptyCellsArray = [ ...state.emptyCells ]
-        newEmptyCellsArray.splice(newEmptyCellsArray.indexOf(randomEmptyCell),1)
-        const id = state.numberOfTiles + 1
-        const newValue =  Math.random() < 0.1 ? 4 : 2
-        const newTile = {
-          x: randomEmptyCell.x,
-          y: randomEmptyCell.y,
-          value: newValue,
-          id: id,
-        }
-        const position = generatePositionKey(newTile.x, newTile.y)
-        return {
-          ...state,
-          emptyCells: newEmptyCellsArray,
-          tilesById : {
-            ...state.tilesById,
-            [id]: newTile
-          },
-          numberOfTiles: id,
-          tilesByRow: {
-            ...state.tilesByRow,
-            [newTile.x]: [...state.tilesByRow[newTile.x], id]
-          },
-          tilesByColumn: {
-            ...state.tilesByColumn,
-            [newTile.y]: [...state.tilesByColumn[newTile.y], id]
-          },
-          tilesByPosition: {
-            ...state.tilesByPosition,
-            [position]: id
-          },
-          tilesHasBeenMoved: false,
-          mergeImpossible: {}
-        }
-      } else return state
+      const randomCell = Array.from(emptyPositions)[Math.floor(Math.random()*emptyPositions.size)]
+      emptyPositions.delete(randomCell)
+      const newId = ++maxTileId
+      const newValue =  Math.random() < 0.1 ? 4 : 2
+      const newTile = { id: newId, x: randomCell[0], y: randomCell[1], value: newValue }
+      const newTilesById = { ...state.tilesById, [newId]: newTile }
+      return { ...state, tilesById: newTilesById, tilesHasBeenMoved: false }
 
     case MOVE_TILES:
-      if (!state.emptyCells.length
-        && Object.keys(state.mergeImpossible).length === 4
-        && Object.keys(state.mergeImpossible).every(key => state.mergeImpossible[key] === true)) {
-        state.gameOver = true
-      }
       const direction = action.payload.direction
-      const newState = { ...state }
-      newState.currentTurn++
-      newState.tilesHasBeenMoved = false
-      const currentTurn = newState.currentTurn
-      if(direction === RIGHT) {
-        for (let y = 4; y > 0; y--) {
-          newState.tilesByColumn[y].forEach((tileId) => {
-            let currentTile = getTileById(newState, tileId)
-            if(currentTile) {
-              while(currentTile.y + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y + 1)]) {
-                calculatePosition(newState, currentTile, 'plus', 'y')
-              }
-              newState.mergeImpossible = { ...newState.mergeImpossible, [RIGHT]: true }
-              const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y + 1)])
-              mergeTiles(newState, currentTile, nextTile, currentTurn, 'plus', 'y')
-            }
-          })
-        }
-      } else if(direction === LEFT) {
-        for (let y = 1; y < 5; y++) {
-          newState.tilesByColumn[y].forEach((tileId) => {
-            let currentTile = getTileById(newState, tileId)
-            if(currentTile) {
-              while(currentTile.y - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)]) {
-                calculatePosition(newState, currentTile, 'minus', 'y')
-              }
-              newState.mergeImpossible = { ...newState.mergeImpossible, [LEFT]: true }
-              const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x, currentTile.y - 1)])
-              mergeTiles(newState, currentTile, nextTile, currentTurn, 'minus', 'y')
-            }
-          })
-        }
-      } else if(direction === UP) {
-        for (let x = 1; x < 5; x++) {
-          newState.tilesByRow[x].forEach((tileId) => {
-            let currentTile = getTileById(newState, tileId)
-            if(currentTile) {
-              while(currentTile.x - 1 >= 1 && !newState.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)]) {
-                calculatePosition(newState, currentTile, 'minus', 'x')
-              }
-              newState.mergeImpossible = { ...newState.mergeImpossible, [UP]: true }
-              const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x - 1, currentTile.y)])
-              mergeTiles(newState, currentTile, nextTile, currentTurn, 'minus', 'x')
-            }
-          })
-        }
-      } else if(direction === DOWN) {
-        for (let x = 4; x > 0; x--) {
-          newState.tilesByRow[x].forEach((tileId) => {
-            let currentTile = getTileById(newState, tileId)
-            if(currentTile) {
-              while(currentTile.x + 1 <= 4 && !newState.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)]) {
-                calculatePosition(newState, currentTile, 'plus', 'x')
-              }
-              newState.mergeImpossible = { ...newState.mergeImpossible, [DOWN]: true }
-              const nextTile = getTileById(state, state.tilesByPosition[generatePositionKey(currentTile.x + 1, currentTile.y)])
-              mergeTiles(newState, currentTile, nextTile, currentTurn, 'plus', 'x')
-            }
-          })
-        }
-      }
-      return newState
+      let board = buildBoard(Object.values(state.tilesById), direction)
+      board = updateBoard(board, direction)
+      const updatedTilesById = [].concat.apply([], board).reduce((obj, tile) => {
+        obj[tile.id] = tile
+        return obj
+      }, {})
+
+      emptyPositions = buildEmptyPositions(Object.values(updatedTilesById))
+
+      return { ...state, tilesById: updatedTilesById, tilesHasBeenMoved: true, score, maxValue }
+
     default:
       return state
   }
