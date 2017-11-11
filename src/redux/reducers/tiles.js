@@ -30,9 +30,9 @@ const buildEmptyPositions = (tiles) => {
 
 const mergeTiles = (array) => {
   const filteredArray = array.filter(val => val !== undefined)
-  for(let i = 0; i < filteredArray.length - 1; i ++) {
-    if(filteredArray[i].value === filteredArray[i+1].value) {
-      const sumValue = filteredArray[i+1].value *= 2
+  for(let i = filteredArray.length - 1; i > 0; i --) {
+    if(filteredArray[i].value === filteredArray[i-1].value) {
+      const sumValue = filteredArray[i-1].value *= 2
       score += sumValue
       maxValue = Math.max(sumValue, maxValue)
       filteredArray.splice(i, 1)
