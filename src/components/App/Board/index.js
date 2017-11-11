@@ -7,6 +7,8 @@ import Cell from '../Cell'
 import Tile from '../Tile'
 import styles from './styles.scss'
 
+let pause = false
+
 class Board extends Component {
 
   componentWillMount() {
@@ -22,6 +24,9 @@ class Board extends Component {
   }
 
   handleKeyDown(event) {
+    if (pause) return
+    pause = true
+    setTimeout(() => pause = false, 500)
     switch(event.keyCode) {
       case 37: return this.props.moveTiles(LEFT)
       case 38: return this.props.moveTiles(UP)

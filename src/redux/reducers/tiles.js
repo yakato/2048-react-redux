@@ -8,8 +8,7 @@ import {
 } from './constants'
 
 const initialState = {
-  tilesById: {
-  },
+  tilesById: {},
   score: 0,
   gameOver: false,
   maxValue: 0,
