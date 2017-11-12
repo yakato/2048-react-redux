@@ -3,8 +3,7 @@ import {
   MOVE_TILES,
   RIGHT,
   LEFT,
-  UP,
-  DOWN
+  UP
 } from './constants'
 
 const initialState = {
@@ -13,6 +12,7 @@ const initialState = {
   gameOver: false,
   maxValue: 0,
   tilesHasBeenMoved: false,
+  mergeImpossible: {},
 }
 
 const buildEmptyPositions = (tiles) => {
@@ -87,15 +87,22 @@ export default (state = initialState, action) => {
   switch (action.type) {
 
     case CREATE_TILE:
-      const randomCell = Array.from(emptyPositions)[Math.floor(Math.random()*emptyPositions.size)]
-      emptyPositions.delete(randomCell)
-      const newId = ++maxTileId
-      const newValue =  Math.random() < 0.1 ? 4 : 2
-      const newTile = { id: newId, x: randomCell[0], y: randomCell[1], value: newValue }
-      const newTilesById = { ...state.tilesById, [newId]: newTile }
-      return { ...state, tilesById: newTilesById, tilesHasBeenMoved: false }
+      if (emptyPositions.size > 0) {
+        const randomCell = Array.from(emptyPositions)[Math.floor(Math.random()*emptyPositions.size)]
+        emptyPositions.delete(randomCell)
+        const newId = ++maxTileId
+        const newValue =  Math.random() < 0.1 ? 4 : 2
+        const newTile = { id: newId, x: parseInt(randomCell[0], 10), y: parseInt(randomCell[1], 10), value: newValue }
+        const newTilesById = { ...state.tilesById, [newId]: newTile }
+        return { ...state, tilesById: newTilesById, tilesHasBeenMoved: false }
+      } else { return state }
 
     case MOVE_TILES:
+      if (emptyPositions.size === 0
+        && Object.keys(state.mergeImpossible).length === 4
+        && Object.keys(state.mergeImpossible).every(key => state.mergeImpossible[key] === true)) {
+        state.gameOver = true
+      }
       const direction = action.payload.direction
       let board = buildBoard(Object.values(state.tilesById), direction)
       board = updateBoard(board, direction)
@@ -103,10 +110,20 @@ export default (state = initialState, action) => {
         obj[tile.id] = tile
         return obj
       }, {})
-
       emptyPositions = buildEmptyPositions(Object.values(updatedTilesById))
-
-      return { ...state, tilesById: updatedTilesById, tilesHasBeenMoved: true, score, maxValue }
+      const compare = JSON.stringify(state.tilesById) === JSON.stringify(updatedTilesById)
+      let mergeImpossible = {}
+      if (compare) {
+        mergeImpossible = { ...state.mergeImpossible, [direction]: true }
+      }
+      return {
+        ...state,
+        tilesById: updatedTilesById,
+        tilesHasBeenMoved: true,
+        mergeImpossible: mergeImpossible,
+        score,
+        maxValue
+      }
 
     default:
       return state
