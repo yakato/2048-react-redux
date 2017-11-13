@@ -78,6 +78,12 @@ const updateBoard = (board, direction) => {
   })
 }
 
+const isGameOver = state => (
+  emptyPositions.size === 0
+  && Object.keys(state.mergeImpossible).length === 4
+  && Object.keys(state.mergeImpossible).every(key => state.mergeImpossible[key] === true)
+)
+
 let emptyPositions = buildEmptyPositions([])
 let maxTileId = 0
 let score = 0
@@ -87,21 +93,20 @@ export default (state = initialState, action) => {
   switch (action.type) {
 
     case CREATE_TILE:
-      if (emptyPositions.size > 0) {
-        const randomCell = Array.from(emptyPositions)[Math.floor(Math.random()*emptyPositions.size)]
-        emptyPositions.delete(randomCell)
-        const newId = ++maxTileId
-        const newValue =  Math.random() < 0.1 ? 4 : 2
-        const newTile = { id: newId, x: parseInt(randomCell[0], 10), y: parseInt(randomCell[1], 10), value: newValue }
-        const newTilesById = { ...state.tilesById, [newId]: newTile }
-        return { ...state, tilesById: newTilesById, tilesHasBeenMoved: false }
-      } else { return state }
+      if (emptyPositions.size === 0) {
+        return state
+      }
+      const randomCell = Array.from(emptyPositions)[Math.floor(Math.random()*emptyPositions.size)]
+      emptyPositions.delete(randomCell)
+      const newId = ++maxTileId
+      const newValue =  Math.random() < 0.1 ? 4 : 2
+      const newTile = { id: newId, x: parseInt(randomCell[0], 10), y: parseInt(randomCell[1], 10), value: newValue }
+      const newTilesById = { ...state.tilesById, [newId]: newTile }
+      return { ...state, tilesById: newTilesById, tilesHasBeenMoved: false }
 
     case MOVE_TILES:
-      if (emptyPositions.size === 0
-        && Object.keys(state.mergeImpossible).length === 4
-        && Object.keys(state.mergeImpossible).every(key => state.mergeImpossible[key] === true)) {
-        state.gameOver = true
+      if (isGameOver(state)) {
+        return { ...state, gameOver: true }
       }
       const direction = action.payload.direction
       let board = buildBoard(Object.values(state.tilesById), direction)
