@@ -8,8 +8,8 @@ class Tile extends Component {
   }
 
   calculatePosition(x, y) {
-    const top = (x - 1) * 100 + 10 * x
-    const left = (y - 1) * 100 + 10 * y
+    const top = y * 110 + 10
+    const left = x * 110 + 10
     return { top, left }
   }
 

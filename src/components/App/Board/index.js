@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { initializeBoard, createTile, moveTiles } from '../../../redux/actions/tiles'
+import { createTile, moveTiles } from '../../../redux/actions/tiles'
 import { RIGHT, LEFT, UP, DOWN } from '../../../redux/reducers/constants'
 import Cell from '../Cell'
 import Tile from '../Tile'
 import styles from './styles.scss'
 
 class Board extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { pause: false}
+  }
 
   componentWillMount() {
-    this.props.initializeBoard()
     this.props.createTile()
   }
 
@@ -23,6 +26,9 @@ class Board extends Component {
   }
 
   handleKeyDown(event) {
+    if (this.state.pause) return
+    this.setState({ pause: true })
+    setTimeout(() => this.setState({ pause: false }), 500)
     switch(event.keyCode) {
       case 37: return this.props.moveTiles(LEFT)
       case 38: return this.props.moveTiles(UP)
@@ -68,7 +74,6 @@ const mapStateToProps = (state) => {
 export default connect(
   mapStateToProps,
   {
-    initializeBoard,
     createTile,
     moveTiles,
   }
